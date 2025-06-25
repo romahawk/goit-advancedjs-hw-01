@@ -4,7 +4,9 @@ import injectHTML from 'vite-plugin-html-inject';
 import FullReload from 'vite-plugin-full-reload';
 import SortCss from 'postcss-sort-media-queries';
 
-export default defineConfig(({ command }) => {
+export default defineConfig(async ({ command }) => {
+  const htmlFiles = await glob('./src/*.html'); // ⬅️ async glob
+
   return {
     base: '/goit-advancedjs-hw-01/',
     define: {
@@ -13,8 +15,10 @@ export default defineConfig(({ command }) => {
     root: 'src',
     build: {
       sourcemap: true,
+      outDir: '../dist',
+      emptyOutDir: true,
       rollupOptions: {
-        input: glob.sync('./src/*.html'),
+        input: htmlFiles,
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
@@ -35,12 +39,10 @@ export default defineConfig(({ command }) => {
           },
         },
       },
-      outDir: '../dist',
-      emptyOutDir: true,
     },
     plugins: [
       injectHTML(),
-      FullReload(['./src/**/**.html']),
+      FullReload(['./src/**/*.html']),
       SortCss({
         sort: 'mobile-first',
       }),
